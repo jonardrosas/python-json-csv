@@ -1,6 +1,6 @@
 from enum import Enum
 
 
-class TypeEnums(Enum):
+class FormatEnums(Enum):
     JSON = 'json'
     CSV = 'csv'
