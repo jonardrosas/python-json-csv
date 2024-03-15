@@ -12,8 +12,7 @@ class HandlerAbstract(ABC):
 
 class Handler(HandlerAbstract):
 
-    def __init__(self, data, source, dest, key) -> None:
-        self.source = source
+    def __init__(self, data, dest, key) -> None:
         self.dest = dest
         self.key = key
         self.data = data; 

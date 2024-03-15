@@ -28,9 +28,22 @@ class HttpReader(ReaderBase):
     def read(self, key=None):
         resp = requests.get(self.data)
         data = resp.json()
-        if key and key in data:
-            return data[key]
+        if isinstance(data, dict):
+            all_keys = [_key for _key in data.keys() if _key != key ]
+            if key and key in data:
+                return self.merged_data(data, key, all_keys)
+            else:
+                raise Exception()
         return data
+
+    def merged_data(self, data, key, all_keys):
+        final_data = []
+        for _data in data[key]:
+            for _key in all_keys:
+                if _key in data:
+                    _data[_key] = data[_key]
+            final_data.append(_data)
+        return final_data
 
 
 class FileReader(ReaderBase):

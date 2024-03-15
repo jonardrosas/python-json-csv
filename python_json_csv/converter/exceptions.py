@@ -1,0 +1,4 @@
+
+
+class NoKeyException(Exception):
+    pass
