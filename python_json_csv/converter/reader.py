@@ -1,5 +1,6 @@
 import requests
 from abc import ABC, abstractmethod
+from .exceptions import NoKeyException
 
 
 class ReaderAbstract(ABC):
@@ -30,10 +31,11 @@ class HttpReader(ReaderBase):
         data = resp.json()
         if isinstance(data, dict):
             all_keys = [_key for _key in data.keys() if _key != key ]
-            if key and key in data:
-                return self.merged_data(data, key, all_keys)
-            else:
-                raise Exception()
+            if key:
+                if key in data:
+                    return self.merged_data(data, key, all_keys)
+                else:
+                    raise NoKeyException(f"The key {key} does not exists on the source")
         return data
 
     def merged_data(self, data, key, all_keys):
