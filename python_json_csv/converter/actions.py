@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import csv
+import time
 import os
 from datetime import datetime
 from .reader import HttpReader, DefaultReader
@@ -59,6 +60,7 @@ class CsvAction(ActionBase):
         data =  self.get_data()
         header = self.get_header(data)
         output_path = self.get_storage_location()
+        output_path = os.path.normpath(output_path)
         with open(output_path, 'w') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=header)
             writer.writeheader()
@@ -67,16 +69,15 @@ class CsvAction(ActionBase):
         return data
         
     def get_storage_location(self):
-        base_path = ''
-        if self.output_locaton:
-            base_path = self.output_locaton
         filename = self.generate_filename()
+        base_path = os.getcwd() 
+        if self.output_locaton:
+            return os.path.join(base_path, self.output_locaton, filename)
         return os.path.join(base_path, filename)
 
     def generate_filename(self):
-        now = datetime.now()
+        now = str(time.time()).split('.')[0]
         return f"csv_{now}.{self.ext}"
-
 
 
 class XmlAction(ActionBase):
