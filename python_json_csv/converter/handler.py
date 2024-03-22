@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from .actions import DefaultAction, CsvAction
+from .actions import DefaultAction, CsvAction, XmlAction
 from .enums import FormatEnums
 from .exceptions import NoActionHandler
 
@@ -21,6 +21,8 @@ class Handler(HandlerAbstract):
     def get_action_class(self):
         if self.dest == FormatEnums.CSV.value:
             return  CsvAction
+        elif self.dest == FormatEnums.XML.value:
+            return XmlAction
         raise NoActionHandler(f'No action handler for the specified format {self.dest}')
 
     def get_action(self):

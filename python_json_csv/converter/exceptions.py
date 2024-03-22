@@ -6,3 +6,7 @@ class NoKeyException(Exception):
 
 class NoActionHandler(Exception):
     pass
+
+
+class HttpRequestError(Exception):
+    pass

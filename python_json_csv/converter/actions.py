@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import csv
 import time
 import os
-from datetime import datetime
+import xmltodict
 from .reader import HttpReader, DefaultReader
 from .enums import FormatEnums
 
@@ -32,6 +32,16 @@ class ActionBase(ActionAbstract):
         reader = self.get_reader()
         reader_ins = reader(self.data)
         return reader_ins.read()
+
+    def get_storage_location(self):
+        filename = self.generate_filename()
+        base_path = os.getcwd() 
+        if self.output_locaton:
+            location = os.path.join(base_path, self.output_locaton)
+            if not os.path.exists(location):
+                os.makedirs(location)
+            return os.path.join(location, filename)
+        return os.path.join(base_path, filename)
 
     def convert(self):
         data =  self.get_data()
@@ -66,14 +76,7 @@ class CsvAction(ActionBase):
             writer.writeheader()
             writer.writerows(data)
             print(f"successfully converted to csv {output_path}")
-        return data
         
-    def get_storage_location(self):
-        filename = self.generate_filename()
-        base_path = os.getcwd() 
-        if self.output_locaton:
-            return os.path.join(base_path, self.output_locaton, filename)
-        return os.path.join(base_path, filename)
 
     def generate_filename(self):
         now = str(time.time()).split('.')[0]
@@ -81,6 +84,16 @@ class CsvAction(ActionBase):
 
 
 class XmlAction(ActionBase):
+    ext = FormatEnums.CSV.XML
 
     def convert(self):
-        print("Converting to xml")
+        data = {'root': self.get_data()}
+        output_path = self.get_storage_location()
+        output_path = os.path.normpath(output_path)
+        xml_data = xmltodict.unparse(data)
+        with open(output_path, 'w') as f:
+            f.write(xml_data)
+
+    def generate_filename(self):
+        now = str(time.time()).split('.')[0]
+        return f"filename_{now}.{self.ext}"

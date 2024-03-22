@@ -1,6 +1,6 @@
 import requests
 from abc import ABC, abstractmethod
-from .exceptions import NoKeyException
+from .exceptions import NoKeyException, HttpRequestError
 
 
 class ReaderAbstract(ABC):
@@ -28,17 +28,20 @@ class HttpReader(ReaderBase):
 
     def read(self, key=None):
         resp = requests.get(self.data)
-        data = resp.json()
-        if isinstance(data, dict):
-            all_keys = [_key for _key in data.keys() if _key != key ]
-            if key:
-                if key in data:
-                    return self.merged_data(data, key, all_keys)
-                else:
-                    raise NoKeyException(f"The key {key} does not exists on the source")
-        return data
+        if resp.status_code == 200:
+            data = resp.json()
+            if isinstance(data, dict):
+                all_keys = [_key for _key in data.keys() if _key != key ]
+                if key:
+                    if key in data:
+                        return self.flatten(data, key, all_keys)
+                    else:
+                        raise NoKeyException(f"The key {key} does not exists on the source")
+            return data
+        else:
+            raise HttpRequestError(f"Error while ready the path {self.data}")
 
-    def merged_data(self, data, key, all_keys):
+    def flatten(self, data, key, all_keys):
         final_data = []
         for _data in data[key]:
             for _key in all_keys:
